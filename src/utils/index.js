@@ -3,15 +3,15 @@ const mapDBToModel = ({
   title,
   body,
   tags,
-  created_at,
+  inserted_at,
   updated_at
 }) => ({
   id,
   title,
   body,
   tags,
-  createdAt: created_at,
-  updatedAt: updated_at,
+  insertedAt: inserted_at,
+  updatedAt: updated_at
 })
 
-module.exports = { mapDBToModel };
+module.exports = { mapDBToModel }

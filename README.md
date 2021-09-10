@@ -1,1 +1,1 @@
-# notes-app-back-end
+# Open Music Application
