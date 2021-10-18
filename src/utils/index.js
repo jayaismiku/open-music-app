@@ -1,15 +1,20 @@
+/* eslint-disable camelcase */
 const mapDBToModel = ({
   id,
   title,
-  body,
-  tags,
+  year,
+  performer,
+  genre,
+  duration,
   inserted_at,
   updated_at
 }) => ({
   id,
   title,
-  body,
-  tags,
+  year,
+  performer,
+  genre,
+  duration,
   insertedAt: inserted_at,
   updatedAt: updated_at
 })

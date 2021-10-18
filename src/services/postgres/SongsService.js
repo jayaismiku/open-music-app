@@ -3,7 +3,7 @@ const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
-// const { mapDBToModel } = require('../../utils')
+const { mapDBToModel } = require('../../utils')
 
 class SongsService {
   constructor() {
@@ -11,7 +11,7 @@ class SongsService {
   }
 
   async addSong({ title, year, performer, genre, duration }) {
-    const id = nanoid(16)
+    const id = 'song-' + nanoid(8)
     const insertedAt = new Date().toISOString()
     const updatedAt = insertedAt
 
@@ -31,7 +31,7 @@ class SongsService {
 
   async getSongs() {
     const result = await this._pool.query('SELECT * FROM music')
-    return result.rows
+    return result.rows.map(mapDBToModel)
   }
 
   async getSongById(songId) {
@@ -45,13 +45,13 @@ class SongsService {
       throw new NotFoundError('Catatan tidak ditemukan')
     }
 
-    return result.rows
+    return result.rows.map(mapDBToModel)[0]
   }
 
   async editSongById(songId, { title, year, performer, genre, duration }) {
     const updatedAt = new Date().toISOString()
     const query = {
-      text: 'UPDATE music SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updatedAt = $6 WHERE id = $7 RETURNING id',
+      text: 'UPDATE music SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updated_at = $6 WHERE id = $7 RETURNING id',
       values: [title, year, performer, genre, duration, updatedAt, songId]
     }
 

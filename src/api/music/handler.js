@@ -102,7 +102,7 @@ class SongsHandler {
 
       return {
         status: 'success',
-        message: 'Catatan berhasil diperbarui'
+        message: 'lagu berhasil diperbarui'
       }
     } catch (error) {
       if (error instanceof ClientError) {
