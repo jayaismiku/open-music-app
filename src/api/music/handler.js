@@ -17,8 +17,13 @@ class SongsHandler {
     try {
       this._validator.validateSongPayload(request.payload)
       const { title = 'untitled', year, performer, genre, duration } = request.payload
+      const { id: credentialId } = request.auth.credentials
 
-      const songId = await this._service.addSong({ title, year, performer, genre, duration })
+      const songId = await this._service.addSong({
+        title, body, tags, owner: credentialId
+      })
+
+      // const songId = await this._service.addSong({ title, year, performer, genre, duration })
 
       const response = h.response({
         status: 'success',
@@ -49,8 +54,9 @@ class SongsHandler {
     }
   }
 
-  async getSongsHandler() {
-    const songs = await this._service.getSongs()
+  async getSongsHandler(request) {
+    const { id: credentialId } = request.auth.credentials
+    const songs = await this._service.getNotes(credentialId)
     return {
       status: 'success',
       data: {
@@ -66,6 +72,9 @@ class SongsHandler {
   async getSongByIdHandler(request, h) {
     try {
       const { songId } = request.params
+      const { id: credentialId } = request.auth.credentials
+
+      await this._service.verifySongOwner(songId, credentialId)
       const song = await this._service.getSongById(songId)
       return {
         status: 'success',
@@ -97,9 +106,9 @@ class SongsHandler {
     try {
       this._validator.validateSongPayload(request.payload)
       const { songId } = request.params
-
+      const { id: credentialId } = request.auth.credentials
+      await this._service.verifySongOwner(songId, credentialId)
       await this._service.editSongById(songId, request.payload)
-
       return {
         status: 'success',
         message: 'lagu berhasil diperbarui'
@@ -127,6 +136,8 @@ class SongsHandler {
   async deleteSongByIdHandler(request, h) {
     try {
       const { songId } = request.params
+      const { id: credentialId } = request.auth.credentials
+      await this._service.verifyNoteOwner(songId, credentialId)
       await this._service.deleteSongById(songId)
       return {
         status: 'success',
