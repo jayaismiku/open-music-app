@@ -7,8 +7,24 @@ const AuthorizationError = require('../../exceptions/AuthorizationError.js')
 const { mapDBToModel } = require('../../utils')
 
 class SongsService {
-  constructor() {
+  constructor(collaborationService) {
     this._pool = new Pool()
+    this._collaborationService = collaborationService
+  }
+
+  async verifyNoteAccess(songId, userId) {
+    try {
+      await this.verifyNoteOwner(songId, userId)
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error
+      }
+      try {
+        await this._collaborationService.verifyCollaborator(songId, userId)
+      } catch {
+        throw error
+      }
+    }
   }
 
   async verifySongOwner(id, owner) {
@@ -49,7 +65,8 @@ class SongsService {
 
   async getSongs(owner) {
     const query = {
-      text: 'SELECT * FROM music WHERE owner = $1',
+      // text: 'SELECT * FROM music WHERE owner = $1',
+      text: 'SELECT music.* FROM music LEFT JOIN collaborations ON collaborations.song_id = music.id WHERE music.owner = $1 OR collaborations.user_id = $1 GROUP BY music.id',
       values: [owner]
     }
     const result = await this._pool.query(query)
@@ -59,7 +76,8 @@ class SongsService {
 
   async getSongById(songId) {
     const query = {
-      text: 'SELECT * FROM music WHERE id = $1',
+      // text: 'SELECT * FROM music WHERE id = $1',
+      text: 'SELECT music.*, users.username FROM music LEFT JOIN users ON users.id = music.owner WHERE music.id = $1',
       values: [songId]
     }
     const result = await this._pool.query(query)
