@@ -3,10 +3,20 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
 
-// musics
-const music = require('./api/music')
+// songs
+const songs = require('./api/songs')
 const SongsService = require('./services/postgres/SongsService')
-const SongsValidator = require('./validator/music')
+const SongsValidator = require('./validator/songs')
+
+// playlists
+const playlists = require('./api/playlists')
+const PlaylistsService = require('./services/postgres/PlaylistsService')
+const PlaylistsValidator = require('./validator/playlists')
+
+// playlistsongs
+const playlistsongs = require('./api/playlistsongs')
+const PlaylistsongsService = require('./services/postgres/PlaylistsongsService')
+const PlaylistsongsValidator = require('./validator/playlistsongs')
 
 // users
 const users = require('./api/users')
@@ -26,9 +36,11 @@ const CollaborationsValidator = require('./validator/collaborations')
 
 const init = async () => {
   const collaborationsService = new CollaborationsService()
+  const playlistsService = new PlaylistsService(collaborationsService)
+  const playlistsongsService = new PlaylistsongsService()
+  const authenticationsService = new AuthenticationsService()
   const songsService = new SongsService()
   const usersService = new UsersService()
-  const authenticationsService = new AuthenticationsService()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -48,7 +60,7 @@ const init = async () => {
   ])
 
   // mendefinisikan strategy autentikasi jwt
-  server.auth.strategy('musicsapp_jwt', 'jwt', {
+  server.auth.strategy('musicapp_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
@@ -66,7 +78,7 @@ const init = async () => {
 
   await server.register([
     {
-      plugin: music,
+      plugin: songs,
       options: {
         service: songsService,
         validator: SongsValidator
@@ -77,6 +89,20 @@ const init = async () => {
       options: {
         service: usersService,
         validator: UsersValidator
+      }
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistsService,
+        validator: PlaylistsValidator
+      }
+    },
+    {
+      plugin: playlistsongs,
+      options: {
+        service: playlistsongsService,
+        validator: PlaylistsongsValidator
       }
     },
     {

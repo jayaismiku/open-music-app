@@ -7,8 +7,7 @@ const mapDBToModel = ({
   genre,
   duration,
   inserted_at,
-  updated_at,
-  owner
+  updated_at
 }) => ({
   id,
   title,
@@ -17,8 +16,7 @@ const mapDBToModel = ({
   genre,
   duration,
   insertedAt: inserted_at,
-  updatedAt: updated_at,
-  owner
+  updatedAt: updated_at
 })
 
 module.exports = { mapDBToModel }
