@@ -1,10 +1,11 @@
-const ClientError = require('./ClientError');
+/* eslint-disable space-before-function-paren */
+const ClientError = require('./ClientError')
 
 class NotFoundError extends ClientError {
   constructor(message) {
-    super(message, 404);
-    this.name = 'NotFoundError';
+    super(message, 404)
+    this.name = 'NotFoundError'
   }
 }
 
-module.exports = NotFoundError;
+module.exports = NotFoundError

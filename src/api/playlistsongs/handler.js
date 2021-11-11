@@ -16,7 +16,7 @@ class PlaylistsongsHandler {
       this._validator.validatePlaylistsongsPayload(request.payload)
       const { playlistId } = request.params
       const { songId } = request.payload
-      console.log(playlistId)
+
       const playlistsongsId = await this._service.addPlaylistsongs(playlistId, songId)
 
       const response = h.response({
@@ -49,18 +49,29 @@ class PlaylistsongsHandler {
     }
   }
 
-  async getPlaylistsongsHandler(request) {
-    const { playlistId } = request.params
-    const playlists = await this._service.getPlaylistsongById(playlistId)
-    return {
-      status: 'success',
-      data: {
-        playlists: playlists.map((pl) => ({
-          id: pl.id,
-          name: pl.name,
-          username: pl.username
-        }))
+  async getPlaylistsongsHandler(request, h) {
+    try {
+      const { playlistId } = request.params
+      const songs = await this._service.getPlaylistsongById(playlistId)
+      return {
+        status: 'success',
+        data: {
+          songs: songs.map((pl) => ({
+            id: pl.id,
+            title: pl.title,
+            performer: pl.performer
+          }))
+        }
       }
+    } catch (error) {
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.'
+      })
+      response.code(500)
+      console.error(error)
+      return response
     }
   }
 

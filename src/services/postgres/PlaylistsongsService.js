@@ -1,8 +1,10 @@
 /* eslint-disable space-before-function-paren */
 const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
-const InvariantError = require('../../exceptions/InvariantError')
+// const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
+const ClientError = require('../../exceptions/ClientError')
+const AuthorizationError = require('../../exceptions/AuthorizationError')
 
 class PlaylistsongsService {
   constructor() {
@@ -18,15 +20,15 @@ class PlaylistsongsService {
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {
-      throw new InvariantError('Playlistsongs gagal ditambahkan')
+      throw new AuthorizationError('Playlistsongs gagal ditambahkan')
     }
     return result.rows[0].id
   }
 
   async getPlaylistsongById(playlistId) {
     const query = {
-      // text: 'SELECT * FROM playlists WHERE id = $1',
-      text: 'SELECT songs.* FROM songs LEFT JOIN playlistsongs ON users.id = playlistsongs.song_id WHERE playlists.id = $1',
+      // text: 'SELECT * FROM playlistsongs WHERE playlist_id = $1',
+      text: 'SELECT songs.* FROM songs LEFT JOIN playlistsongs ON songs.id = playlistsongs.song_id WHERE playlistsongs.playlist_id = $1',
       values: [playlistId]
     }
     const result = await this._pool.query(query)
@@ -46,7 +48,7 @@ class PlaylistsongsService {
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {
-      throw new InvariantError('Playlistsongs gagal dihapus')
+      throw new ClientError('Playlistsongs gagal dihapus')
     }
   }
 }

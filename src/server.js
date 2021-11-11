@@ -36,8 +36,8 @@ const CollaborationsValidator = require('./validator/collaborations')
 
 const init = async () => {
   const collaborationsService = new CollaborationsService()
-  const playlistsService = new PlaylistsService(collaborationsService)
   const playlistsongsService = new PlaylistsongsService()
+  const playlistsService = new PlaylistsService(collaborationsService)
   const authenticationsService = new AuthenticationsService()
   const songsService = new SongsService()
   const usersService = new UsersService()
