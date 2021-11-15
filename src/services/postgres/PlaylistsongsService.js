@@ -11,6 +11,39 @@ class PlaylistsongsService {
     this._pool = new Pool()
   }
 
+  async verifyPlaylistOwner(playlistId, userId) {
+    const query = {
+      text: 'SELECT * FROM playlists WHERE id = $1',
+      values: [playlistId]
+    }
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist tidak ditemukan')
+    }
+
+    const playlist = result.rows[0]
+
+    if (playlist.owner !== userId) {
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini')
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId)
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error
+      }
+      try {
+        await this._collaborationService.verifyCollaborator(playlistId, userId)
+      } catch {
+        throw error
+      }
+    }
+  }
+
   async addPlaylistsongs(playlistId, songId) {
     const id = `playlistsong-${nanoid(8)}`
     const query = {
